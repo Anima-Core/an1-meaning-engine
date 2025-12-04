@@ -119,7 +119,6 @@ results/baselines.json
 
 Reproduce with:
 
-```bash
 python -m an1_meaning_engine.baselines.experiment_pixels
 python -m an1_meaning_engine.baselines.experiment_scratch_block1
 python -m an1_meaning_engine.experiment_frozen_sender
