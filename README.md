@@ -138,35 +138,39 @@ This cleanly shows that the frozen teacher’s first block contains more task-al
 
 ## How to Run
 
-### Install dependencies
-pip install -r requirements.txt
+Install dependencies
 
-### Teacher checkpoint
+    pip install -r requirements.txt
+
+Teacher checkpoint
 
 This experiment uses a pretrained, frozen teacher checkpoint:
-checkpoints/resnet18_cifar10_teacher.pth
+
+    checkpoints/resnet18_cifar10_teacher.pth
 
 The checkpoint is already included.  
 You only need to retrain it if you intentionally want a new teacher model.
 
+Run the frozen sender experiment
 
-### Run the frozen sender experiment
-
-python -m an1_meaning_engine.experiment_frozen_sender
+    python -m an1_meaning_engine.experiment_frozen_sender
 
 This will:
 
-1. Load the frozen teacher  
-2. Extract 64 dimensional headers  
-3. Train the AN1 head  
-4. Evaluate accuracy  
-5. Compute latency and FLOPs  
-6. Print the full benchmark summary  
+    1. Load the frozen teacher
+    2. Extract 64 dimensional headers
+    3. Train the AN1 head
+    4. Evaluate accuracy
+    5. Compute latency and FLOPs
+    6. Print the full benchmark summary
 
 All seeds are fixed. Everything is reproducible.
 
 ---
 
+## Repository Structure
+
+```
 an1_meaning_engine/
     data.py
     teacher.py
@@ -185,28 +189,31 @@ requirements.txt
 LICENSE
 PATENT_NOTICE.md
 README.md
+```
 
-Entry point:  
-python -m an1_meaning_engine.experiment_frozen_sender
+Entry point:
+
+    python -m an1_meaning_engine.experiment_frozen_sender
 
 ---
 
 ## Notes
 
-The teacher is always frozen
+• The teacher is always frozen
 
-All teacher calls are wrapped in torch.no_grad()
+• All teacher calls are wrapped in torch.no_grad()
 
-No gradients flow into the teacher
+• No gradients flow into the teacher
 
-Latency uses warmup, synchronization, and perf_counter
+• Latency uses warmup, synchronization, and perf_counter
 
-FLOP reduction is computed analytically from layer dimensions
+• FLOP reduction is computed analytically from layer dimensions
 
-No proprietary or symbolic internals are included
+• No proprietary or symbolic internals are included
 
 
 This is a clean public demonstration of a simple phenomenon.
+
 
 ---
 
