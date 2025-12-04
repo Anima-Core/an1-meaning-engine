@@ -106,31 +106,31 @@ This experiment makes that visible.
 
 To separate the effect of pretrained early features from raw pixels or scratch training, the repo includes two matched baselines that use the same MLP head as AN1:
 
-- **Pixels → MLP**  
-- **Scratch block1 → MLP**  
-- **Frozen ResNet block1 → AN1 head** (main experiment)
+    Pixels → MLP
+    Scratch block1 → MLP
+    Frozen ResNet block1 → AN1 head (main experiment)
 
-All three use identical head capacity and optimizer settings.
+All three use identical head capacity, identical training code, and identical optimizer settings.  
 The only difference is the input representation.
 
 The results (from an H200 NVL run) are stored in:
 
-results/baselines.json
+    results/baselines.json
 
 Reproduce with:
 
-python -m an1_meaning_engine.baselines.experiment_pixels
-python -m an1_meaning_engine.baselines.experiment_scratch_block1
-python -m an1_meaning_engine.experiment_frozen_sender
+    python -m an1_meaning_engine.baselines.experiment_pixels
+    python -m an1_meaning_engine.baselines.experiment_scratch_block1
+    python -m an1_meaning_engine.experiment_frozen_sender
 
 H200 Results:
 
-Model	Accuracy
-
-Teacher (ResNet18 full)	87.89 %
-Frozen block1 + AN1 head	72.57 %
-Scratch block1 + same head	66.89 %
-Pixels + same head	52.25 %
+    Model                                     Accuracy
+    ---------------------------------------------------
+    Teacher (ResNet18 full)                   87.89 %
+    Frozen block1 + AN1 head                  72.57 %
+    Scratch block1 + same head                66.89 %
+    Pixels + same head                        52.25 %
 
 This cleanly shows that the frozen teacher’s first block contains more task-aligned information than either raw pixels or a scratch-trained early block, under identical head capacity and training time.
 
