@@ -1,0 +1,11 @@
+{
+  "teacher_acc": 0.8789,
+  "an1_block1_acc": 0.7257,
+  "pixel_head_acc": 0.5225,
+  "scratch_block1_acc": 0.6689,
+
+  "teacher_latency_ms_b256": 0.0071,
+  "an1_block1_latency_ms_b256": 0.0007,
+  "pixel_head_latency_ms_b256": 0.0183,
+  "scratch_block1_latency_ms_b256": 0.2968
+}
