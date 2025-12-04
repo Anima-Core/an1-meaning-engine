@@ -13,13 +13,13 @@ By decoding only the first block’s activation, we recover ~82.6 percent of the
 There is no early exit, no pruning, no partial forward pass, and no distillation.  
 **The backbone stops after block 1. Nothing else runs.**
 
-In other words, the network’s intent sketch is already present after the first block, long before the deep stack performs any of its work.
+In other words, the network’s intent sketch is already present after the first block, long before the deep stack performs its work.
 
 ---
 
 ## What This Shows (one sentence)
 
-**The final intent of a frozen network is already mostly formed in the early layers, and a tiny learned decoder can reconstruct most of the model’s behavior using a 64-dimensional early activation.**
+**The final intent of a frozen network is already mostly formed in the early layers, and a tiny learned decoder can reconstruct most of the teacher’s behavior.**
 
 ---
 
@@ -45,7 +45,7 @@ All of those require running many backbone layers.
 - Take the activation after **block 1**  
 - Project it to **64 dimensions**  
 - Train a small MLP head  
-- Skip the entire remaining stack (~99.93 percent of FLOPs)  
+- Skip all deeper layers (~99.93 percent of FLOPs)  
 - Measure accuracy  
 
 **Result: ~82.6 percent accuracy recovery at ~1370× fewer FLOPs.**
@@ -98,9 +98,42 @@ input → block1 → tiny decoder → prediction
 **Speedup by batch size:**  
 - Batch size 64: 8.87x
 
-This is a simple experiment, yet it reveals something important.  
-Not all intelligence needs the full stack.  
-This experiment suggests that intelligence may not require full computation, only the right early signal.
+The implication is simple.
+Even small signals can carry surprising intent.
+This experiment makes that visible.
+
+### Baselines
+
+To separate the effect of pretrained early features from raw pixels or scratch training, the repo includes two matched baselines that use the same MLP head as AN1:
+
+- **Pixels → MLP**  
+- **Scratch block1 → MLP**  
+- **Frozen ResNet block1 → AN1 head** (main experiment)
+
+All three use identical head capacity and optimizer settings.
+The only difference is the input representation.
+
+The results (from an H200 NVL run) are stored in:
+
+results/baselines.json
+
+Reproduce with:
+
+```bash
+python -m an1_meaning_engine.baselines.experiment_pixels
+python -m an1_meaning_engine.baselines.experiment_scratch_block1
+python -m an1_meaning_engine.experiment_frozen_sender
+
+H200 Results:
+
+Model	Accuracy
+
+Teacher (ResNet18 full)	87.89 %
+Frozen block1 + AN1 head	72.57 %
+Scratch block1 + same head	66.89 %
+Pixels + same head	52.25 %
+
+This cleanly shows that the frozen teacher’s first block contains more task-aligned information than either raw pixels or a scratch-trained early block, under identical head capacity and training time.
 
 ---
 
@@ -135,23 +168,24 @@ All seeds are fixed. Everything is reproducible.
 
 ---
 
-## Repository Structure
+an1_meaning_engine/
+    data.py
+    teacher.py
+    an1_head.py
+    experiment_frozen_sender.py
+    baselines/
+        experiment_pixels.py
+        experiment_scratch_block1.py
 
-an1_meaning_engine/  
-    data.py  
-    teacher.py  
-    an1_head.py  
-    experiment_frozen_sender.py  
-    metrics.py  
+scripts/
+    train_teacher.py
 
-scripts/  
-    train_teacher.py  
-
-checkpoints/  
-requirements.txt  
-LICENSE  
-PATENT_NOTICE.md  
-README.md  
+checkpoints/
+results/
+requirements.txt
+LICENSE
+PATENT_NOTICE.md
+README.md
 
 Entry point:  
 python -m an1_meaning_engine.experiment_frozen_sender
@@ -160,15 +194,20 @@ python -m an1_meaning_engine.experiment_frozen_sender
 
 ## Notes
 
-The teacher is always frozen.  
-All teacher calls are inside torch.no_grad().  
-No gradients enter the teacher.
+The teacher is always frozen
 
-Latency metrics use warmup, synchronization, and perf_counter.  
-FLOP reduction is computed directly from MLP dimensions.
+All teacher calls are wrapped in torch.no_grad()
 
-No symbolic or proprietary internals are included.  
-This is a clean, public-safe research demonstration.
+No gradients flow into the teacher
+
+Latency uses warmup, synchronization, and perf_counter
+
+FLOP reduction is computed analytically from layer dimensions
+
+No proprietary or symbolic internals are included
+
+
+This is a clean public demonstration of a simple phenomenon.
 
 ---
 
